@@ -202,7 +202,7 @@ function plot_acf3(data,k, ifplot= false)
     n = length(data)
     avg = mean(data)
     
-    for x in (1:k)
+    for x in (0:k)
         
         rk = 0
         rk1 = 0
@@ -270,6 +270,119 @@ plot_acf3(AP,12,false)
  0.76 
 ```
 The function works!
+
+## PACF
+
+The PACF is very useful to help identify an autoregressive process.
+
+The function in r is `pacf()`
+
+```R
+#change the data to one column
+
+>as.matrix(AP)
+>head(AP)
+
+[,1]
+[1,]  112
+[2,]  118
+[3,]  132
+[4,]  129
+[5,]  121
+[6,]  135
+```
+Then we use function `pacf()` .
+
+```R
+> pacf(AP,lag.max = 12, plot = FALSE)
+
+Partial autocorrelations of series ‘AP’, by lag
+
+     1      2      3      4      5      6      7      8      9     10     11     12 
+ 0.948 -0.229  0.038  0.094  0.074  0.008  0.126  0.090  0.232  0.166  0.171 -0.135 
+```
+Before creating the function in Julia, we need to know how to calculate PACF.
+One of the efficient way is to use Durbin formula.
+![pic5](https://github.com/a365020121/7901-julia-package/blob/master/img/pic5.png "PACF formula")
+
+where
+
+![pic6](https://github.com/a365020121/7901-julia-package/blob/master/img/pic6.png "PACF formula")
+
+According to the formula, we can build the function in Julia.
+
+```Julia
+# pacf plot function
+# parameters: data, the data you want to caculate the acf
+# parameters: k, how many lags do you want
+
+function plot_pacf(data, k, ifplot = true)
+    
+    data = plot_acf3(data,k,false)
+    data = data[2:length(data)]
+    
+    result = zeros((length(data),length(data)))
+    result[1,1] = data[1]
+    
+    for i = 1:length(data)-1
+        
+        sum_1 = 0
+        sum_2 = 0
+        
+        for j = 1:i
+            
+            sum_1 = sum_1 + result[i,j]*data[i+1-j]
+            sum_2 = sum_2 + result[i,j]*data[j]
+        end
+            
+        result[i+1,i+1] = (data[i+1]-sum_1)/(1-sum_2) 
+        
+        for j = 1:i
+            
+            result[i+1,j] = result[i,j] - result[i+1,i+1]*result[i,i-j+1]
+        end
+    end
+    
+    pacf = []
+    
+    for i= 1:k
+        append!(pacf, round(result[i,i],digits=3))
+    end
+    
+    if ifplot == true
+        
+        return plot(pacf, seriestype = :scatter)
+        
+    elseif ifplot == false
+            
+        return pacf
+    end
+        
+end
+```
+
+let us check if the function works.
+
+```julia
+plot_pacf(AP,12,false)
+
+12-element Array{Any,1}:
+  0.948
+ -0.224
+  0.03 
+  0.098
+  0.071
+  0.01 
+  0.122
+  0.097
+  0.223
+  0.177
+  0.159
+ -0.126
+
+```
+WORKS!
+
 
 ---
 Questions:
