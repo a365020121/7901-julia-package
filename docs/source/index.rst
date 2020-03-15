@@ -3,8 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to 7901's documentation!
-================================
+Julia package 'forecast' development
+====================================
+
+guide:
+^^^^^
 
 .. toctree::
    :maxdepth: 2
