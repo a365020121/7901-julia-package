@@ -380,8 +380,9 @@ plot_pacf(AP,12,false)
   0.159
  -0.126
 
-$$ x_t $$
+
 ```
+$$ x_t $$
 WORKS!
 
 
